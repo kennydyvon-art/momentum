@@ -92,6 +92,7 @@ nav button{font-size:10.5px}
 .tm{background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px;color:var(--tx);font:inherit}
 .auth{width:100%;display:flex;flex-direction:column;gap:10px}.auth input{background:rgba(255,255,255,.08);border:1px solid #3a3360;border-radius:12px;padding:13px;color:#fff;font:inherit}#splash .auth .go{margin-top:6px}.auth .lnk{color:#c4bfdc}.auth .note{text-align:center;color:#c4bfdc;padding:0}
 #app{height:100dvh}button{touch-action:manipulation}button:active{opacity:.7}
+#tour{position:absolute;inset:0;z-index:15;background:var(--bg);display:none;flex-direction:column;padding:20px;padding-top:max(20px,env(safe-area-inset-top))}.tbody{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px}.tbody h2{font-size:26px;font-weight:800}.tbody p{color:var(--mu);font-size:16px;max-width:320px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -104,6 +105,7 @@ nav button{font-size:10.5px}
   </div>
   <main id="view"></main>
   <nav id="nav"></nav>
+  <div id="tour"></div>
 </div>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" onload="window.initSB&&initSB()"></script>
 <script>
@@ -113,7 +115,7 @@ var S={tab:"home",te:-1,cv:"m",rem:{},lead:10,plan:"20:00",hrem:"09:00",sort:0,l
 tasks:[{n:"Finish Accounting revision",t:"",d:1,w:0},{n:"Complete Maths worksheet",t:"",d:1,w:0},{n:"Go for a run (5km)",t:"",d:1,w:0},{n:"Study Physics (Q1 +)",t:"16:00",d:0,w:0,i:"📖"},{n:"Workout (Push Routine)",t:"18:00",d:0,w:0,i:"🏋"},{n:"Read Bible + Pray",t:"20:00",d:0,w:0,i:"✝"},{n:"Plan tomorrow’s tasks",t:"",d:0,w:0,i:"🗓"},{n:"Read chapter 4",t:"",d:0,w:1},{n:"Book dentist",t:"",d:0,w:2}],
 habits:[{n:"Read Bible",i:"✝",w:[1,1,1,0,0],p:9},{n:"Workout / Exercise",i:"🏋",w:[1,1,1,0,0],p:11},{n:"Study / Learn",i:"📖",w:[1,1,1,0,0],p:8},{n:"Drink 2L Water",i:"💧",w:[1,1,1,0,0],p:12},{n:"Good Sleep (7h+)",i:"🌙",w:[1,1,1,0,0],p:10}],
 ev:{"2026-10-15":[["Workout (Pull Routine)",1],["Study Maths (Functions)",0]],"2026-10-17":[["Study Physics (Q1 +)",0],["Workout (Push Routine)",0]],"2026-10-20":[["Accounting mock exam",0]]}};
-var KEYS=["tasks","habits","ev","dark","notif","name","goal","hg","fb","log","fs","goals","rem","lead","plan","hrem"];
+var KEYS=["tasks","habits","ev","dark","notif","name","goal","hg","fb","log","fs","goals","rem","lead","plan","hrem","onb"];
 try{var sv=localStorage.getItem("momentum2");if(sv){var o=JSON.parse(sv);put(o)}}catch(e){}
 var LS="";function save(){var o={};KEYS.forEach(function(k){o[k]=S[k]});var j=JSON.stringify(o);if(j==LS)return;LS=j;try{localStorage.setItem("momentum2",j)}catch(e){}push()}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -161,7 +163,7 @@ for(var i=0;i<7;i++){var d=new Date(mon);d.setDate(mon.getDate()+i);var k=ds(d),
 h+='<button class="wd'+(on?' on':'')+(k==TD?' td':'')+'" data-dt="'+d.getFullYear()+','+d.getMonth()+','+d.getDate()+'"><small>'+d.toLocaleDateString("en-GB",{weekday:"short"}).slice(0,2)+'</small>'+d.getDate()+(n?'<em>'+n+'</em>':'')+'</button>'}
 return h+'</div></div>'}
 function homeX(){var n=new Date(),a=[],mx=1,i,d;for(i=6;i>=0;i--){d=new Date();d.setDate(n.getDate()-i);var c=S.log[ds(d)]||0;mx=Math.max(mx,c);a.push([d.toLocaleDateString("en-GB",{weekday:"short"}).slice(0,2),c])}
-return '<div class="note" style="padding:0 2px 10px">'+n.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</div><div class="add"><input id="qa" placeholder="Quick add a task for today" maxlength="60" aria-label="Quick add"><button id="qab">Add</button></div><button class="card" data-go="more" data-pg="ai" style="width:100%;text-align:left;color:var(--p2);font-weight:700">✦ Plan my day with AI</button><div class="card"><b>This week</b><div class="chart" style="height:100px">'+a.map(function(x){return '<div><em>'+x[1]+'</em><i style="height:'+Math.round(x[1]/mx*56)+'px"></i><small>'+x[0]+'</small></div>'}).join("")+'</div></div>'}
+return (!S.tasks.length&&!S.habits.length?'<button class="card" data-go="more" data-pg="presets" style="width:100%;text-align:left"><b>New here? Add a routine</b><small style="display:block;color:var(--mu)">Pick a preset like Student or Working adult.</small></button>':'')+'<div class="note" style="padding:0 2px 10px">'+n.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</div><div class="add"><input id="qa" placeholder="Quick add a task for today" maxlength="60" aria-label="Quick add"><button id="qab">Add</button></div><button class="card" data-go="more" data-pg="ai" style="width:100%;text-align:left;color:var(--p2);font-weight:700">✦ Plan my day with AI</button><div class="card"><b>This week</b><div class="chart" style="height:100px">'+a.map(function(x){return '<div><em>'+x[1]+'</em><i style="height:'+Math.round(x[1]/mx*56)+'px"></i><small>'+x[0]+'</small></div>'}).join("")+'</div></div>'}
 function remind(){return back("Reminders")+'<div class="card" style="padding:4px 16px"><button class="row" id="nf"><span class="t"><b>Reminders</b></span><span class="sw'+(S.notif?' on':'')+'"></span></button>'+stp("lead","Minutes before a task")+'<div class="row"><span class="t"><b>Daily planning</b></span><input type="time" id="rp" value="'+esc(S.plan)+'" class="tm"></div><div class="row"><span class="t"><b>Habit check-in</b></span><input type="time" id="rh" value="'+esc(S.hrem)+'" class="tm"></div></div><button class="go2" id="rt">Send a test reminder</button><p class="note" style="margin-top:10px">Reminders fire while Momentum is open. Phone notifications when the app is closed need the hosted version.</p>'}
 function aiPage(){return back("AI assistant")+'<div class="pills" style="flex-wrap:wrap">'+[["Plan my day","Plan my day: order today’s tasks and suggest a schedule."],["Suggest tasks","Suggest 3 new tasks that would move my goals forward."],["Insights","Give me insights on my progress and habits."]].map(function(a){return '<button class="pill" data-ai="'+esc(a[1])+'">'+a[0]+'</button>'}).join("")+'</div><div class="add"><input id="aq" placeholder="Ask about your plans" maxlength="200" aria-label="Ask"><button id="aiq">Ask</button></div><div class="card" id="aiout" style="white-space:pre-wrap">Pick a prompt or ask a question.</div><p class="note">Uses your tasks, habits and goals. Works when Momentum is opened inside Claude.</p>'}
 async function askAI(q){var o=$("aiout");if(!o)return;o.textContent="Thinking…";var sm=null;try{sm=await claude.use("sample")}catch(e){}
@@ -173,17 +175,17 @@ var sb=null,REC=/type=recovery/.test(location.hash);
 function initSB(){if(sb||!window.supabase)return;try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){return}sb.auth.onAuthStateChange(function(ev){if(ev=="PASSWORD_RECOVERY"){REC=true;showReset()}});boot()}
 var USER=null,READY=false,pt=0;
 function snap(){var o={};KEYS.forEach(function(k){o[k]=S[k]});return o}
-function blank(nm){S.tasks=[];S.habits=[];S.ev={};S.goals=[];S.log={};S.fs={};S.fb=[];S.rem={};S.name=nm;S.goal=5;S.hg=4;S.lead=10;S.plan="20:00";S.hrem="09:00";S.dark=true;S.notif=true}
+function blank(nm){S.tasks=[];S.habits=[];S.ev={};S.goals=[];S.log={};S.fs={};S.fb=[];S.rem={};S.name=nm;S.goal=5;S.hg=4;S.lead=10;S.plan="20:00";S.hrem="09:00";S.dark=true;S.notif=true;S.onb=0}
 function up(){return sb.from("momentum_data").upsert({user_id:USER.id,data:snap(),updated_at:new Date().toISOString()})}
 function push(){if(!sb||!USER||!READY)return;clearTimeout(pt);pt=setTimeout(function(){pt=0;up().then(function(r){if(r.error)toast("Sync failed. Check your connection.")})},1200)}
 async function pull(soft){var r=await sb.from("momentum_data").select("data").eq("user_id",USER.id).maybeSingle();
 if(r.error){toast("Couldn’t load your data");return}
 if(r.data&&r.data.data){put(r.data.data)}else if(!soft){blank((USER.email||"You").split("@")[0])}
-theme();if(!soft){S.tab="home";S.pg="";S.te=-1}READY=true;try{localStorage.setItem("momentum_uid",USER.id)}catch(e){}render()}
-function showAuth(){var sp=$("splash");$("start").outerHTML='<div class="auth"><input id="ae" type="email" placeholder="Email" autocomplete="email" aria-label="Email"><input id="ap" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" aria-label="Password"><button class="go" id="asi">Sign in</button><button class="lnk" id="asu">Create account</button><button class="lnk" id="afp">Forgot password?</button><small id="am" class="note"></small></div>';sp.querySelector("p").style.marginBottom="16px";$("ae").focus()}
+theme();if(!soft){S.tab="home";S.pg="";S.te=-1}READY=true;try{localStorage.setItem("momentum_uid",USER.id)}catch(e){}render();if(!S.onb&&!S.tour)showTour()}
+function showAuth(){var sp=$("splash");$("start").outerHTML='<div class="auth"><input id="ae" type="email" placeholder="Email" autocomplete="email" aria-label="Email"><input id="ap" type="password" placeholder="Password (8+ characters)" autocomplete="current-password" aria-label="Password"><button class="go" id="asi">Sign in</button><button class="lnk" id="asu">Create account</button><button class="lnk" id="afp">Forgot password?</button><small id="am" class="note"></small></div>';sp.querySelector("p").style.marginBottom="16px";$("ae").focus()}
 async function doAuth(create){var e=$("ae").value.trim(),p=$("ap").value,m=$("am");
 if(!sb){m.textContent="Can’t reach the sign-in service. Check your connection.";return}
-if(!e||p.length<6){m.textContent="Enter an email and a password of 6+ characters.";return}
+if(!e||p.length<8){m.textContent="Enter an email and a password of 8+ characters.";return}
 m.textContent="Please wait…";
 var r=create?await sb.auth.signUp({email:e,password:p}):await sb.auth.signInWithPassword({email:e,password:p});
 if(r.error){m.textContent=r.error.message;return}
@@ -196,13 +198,29 @@ async function logout(){clearTimeout(pt);if(READY&&USER){try{await up()}catch(e)
 async function forgot(){var e=$("ae").value.trim(),m=$("am");if(!sb||!e){m.textContent="Type your email above first.";return}
 m.textContent="Sending…";var r=await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname});
 m.textContent=r.error?r.error.message:"If that email has an account, a reset link is on its way."}
-function showReset(){var sp=$("splash");sp.style.display="flex";sp.innerHTML='<h1>Momentum</h1><p style="margin-bottom:16px">Choose a new password</p><div class="auth"><input id="np" type="password" placeholder="New password (6+ characters)" autocomplete="new-password" aria-label="New password"><button class="go" id="rpw">Update password</button><small id="am" class="note"></small></div>'}
-async function doReset(){var p=$("np").value,m=$("am");if(p.length<6){m.textContent="Use 6 or more characters.";return}
+function showReset(){var sp=$("splash");sp.style.display="flex";sp.innerHTML='<h1>Momentum</h1><p style="margin-bottom:16px">Choose a new password</p><div class="auth"><input id="np" type="password" placeholder="New password (8+ characters)" autocomplete="new-password" aria-label="New password"><button class="go" id="rpw">Update password</button><small id="am" class="note"></small></div>'}
+async function doReset(){var p=$("np").value,m=$("am");if(p.length<8){m.textContent="Use 8 or more characters.";return}
 m.textContent="Saving…";var r=await sb.auth.updateUser({password:p});if(r.error){m.textContent=r.error.message;return}
 REC=false;try{history.replaceState(null,"",location.pathname)}catch(e){}location.reload()}
 function resetAll(){if(!confirm("Delete all your Momentum data? This can’t be undone."))return;blank(S.name);S.tab="home";S.pg="";render();toast("Data reset")}
-function put(o){if(!o||typeof o!="object")return;var T={tasks:"a",habits:"a",goals:"a",fb:"a",ev:"o",log:"o",fs:"o",rem:"o",name:"s",plan:"s",hrem:"s",goal:"n",hg:"n",lead:"n",dark:"b",notif:"b"};
+function put(o){if(!o||typeof o!="object")return;var T={tasks:"a",habits:"a",goals:"a",fb:"a",ev:"o",log:"o",fs:"o",rem:"o",name:"s",plan:"s",hrem:"s",onb:"n",goal:"n",hg:"n",lead:"n",dark:"b",notif:"b"};
 KEYS.forEach(function(k){var v=o[k],t=T[k];if(v===undefined)return;var ok=t=="a"?Array.isArray(v)&&v.every(function(x){return x&&typeof x=="object"&&(k!="habits"||Array.isArray(x.w))&&(k!="goals"||Array.isArray(x.ms))}):t=="o"?(v&&typeof v=="object"&&!Array.isArray(v)):t=="s"?typeof v=="string"&&v.length<200:t=="n"?typeof v=="number":typeof v=="boolean";if(ok)S[k]=v})}
+var TS=[["👋","Welcome to Momentum","Plan your days, build habits and watch your progress grow. This takes 30 seconds."],["✅","Tasks","Tap the circle to finish a task. Tap ✎ to add a time, notes, priority or repeat. Use + to add a new one."],["🔥","Habits","Tap a day’s circle to log a habit and build a streak. Add your own at the bottom of the Habits tab."],["📅","Calendar & Stats","Plan by month or week, and see your progress, streaks and a focus timer under Stats."],["⚡","Start with a routine","Add ready-made tasks and habits for students, workers and more in one tap. You can edit everything later."]];
+function tour(){var t=$("tour"),l=S.ts==TS.length-1,x=TS[S.ts];t.style.display="flex";
+t.innerHTML='<button class="lnk" data-tskip="1" style="align-self:flex-end;margin:0">Skip</button><div class="tbody"><div style="font-size:56px">'+x[0]+'</div><h2>'+x[1]+'</h2><p>'+x[2]+'</p></div><div class="dots" style="justify-content:center;margin-bottom:16px">'+TS.map(function(_,i){return '<span style="width:10px;height:10px;border-radius:50%;background:'+(i==S.ts?'var(--p)':'var(--line)')+'"></span>'}).join("")+'</div>'+(l?'<button class="go2" id="tpre">Choose a routine</button><button class="go2 sec2" data-tskip="1" style="margin-top:8px">Start empty</button>':'<div class="add" style="margin:0">'+(S.ts?'<button class="go2 sec2" data-tn="-1">Back</button>':'')+'<button class="go2" data-tn="1">Next</button></div>')}
+function showTour(){S.ts=0;S.tour=1;tour()}
+function endTour(p){S.onb=1;S.tour=0;$("tour").style.display="none";if(p){S.pg="presets";S.tab="more"}render()}
+var P=[
+{i:"🎓",t:"Student",d:"School, study and a healthy balance",tasks:[["Go to school / class","08:00","daily","🎓"],["Do homework","17:00","daily","📖"],["Study session","19:00","daily","📖"],["Workout","18:00","weekly","🏋"],["Side hustle","20:00","weekly","💼"],["Free time","21:00","daily","🎮"],["Plan tomorrow’s tasks","21:30","daily","🗓"]],habits:[["Study / Learn","📖"],["Workout / Exercise","🏋"],["Drink 2L Water","💧"],["Good Sleep (7h+)","🌙"]]},
+{i:"💼",t:"Working adult",d:"Work, health and downtime",tasks:[["Go to work","08:00","daily","💼"],["Deep-focus work block","10:00","daily","🎯"],["Workout","18:00","weekly","🏋"],["Cook dinner","19:00","daily","🍳"],["Free time","20:30","daily","🎮"],["Plan tomorrow’s tasks","21:30","daily","🗓"],["Weekly budget check","","weekly","💰"]],habits:[["Workout / Exercise","🏋"],["Drink 2L Water","💧"],["Read 20 min","📚"],["Good Sleep (7h+)","🌙"]]},
+{i:"🏋",t:"Fitness",d:"Train, eat well and recover",tasks:[["Workout (Push Routine)","18:00","weekly","🏋"],["Workout (Pull Routine)","18:00","weekly","🏋"],["Workout (Legs)","18:00","weekly","🏋"],["Stretch 10 min","07:30","daily","🧘"],["Meal prep","","weekly","🍳"]],habits:[["Workout / Exercise","🏋"],["Drink 2L Water","💧"],["10,000 steps","👟"],["Good Sleep (7h+)","🌙"]]},
+{i:"🚀",t:"Side hustle",d:"Build something on the side",tasks:[["Work on side hustle","19:00","daily","🚀"],["Reach out to 3 leads","","daily","📞"],["Learn a new skill (30 min)","","daily","🧠"],["Review income & expenses","","weekly","💰"]],habits:[["Side hustle","🚀"],["Learn / Upskill","🧠"]]},
+{i:"🌿",t:"Free time & self-care",d:"Rest and recharge, for everyone",tasks:[["Free time","20:00","daily","🎮"],["Take a walk","","daily","🚶"],["Hobby / creative time","","weekly","🎨"],["Call family or friends","","weekly","📞"]],habits:[["Journal","📓"],["Meditate / Pray (10 min)","🧘"],["Screen-free hour","📵"]]}];
+function presets(){return back("Routine presets")+'<p class="note" style="padding:0 2px 12px">Pick one or mix several. Tasks and habits are added to your plan, and you can edit or delete them any time.</p>'+P.map(function(p,i){return '<div class="card"><div style="display:flex;gap:12px;align-items:center"><span style="font-size:28px">'+p.i+'</span><div><b>'+p.t+'</b><small style="display:block;color:var(--mu)">'+p.d+'</small></div></div><div class="note" style="padding:10px 0">'+p.tasks.map(function(x){return x[0]}).join(" · ")+'</div><button class="go2" data-pr="'+i+'">Add to my plan</button></div>'}).join("")+'<button class="go2 sec2" data-go="home" data-pg="">Done</button>'}
+function addPreset(i){var p=P[i],a=0,b=0;
+p.tasks.forEach(function(x){if(!S.tasks.some(function(t){return t.n==x[0]})){S.tasks.push({n:x[0],t:x[1],d:0,w:0,rc:x[2],dd:TD,pr:0,cat:p.t,i:x[3]||""});a++}});
+p.habits.forEach(function(x){if(!S.habits.some(function(h){return h.n==x[0]})){S.habits.push({n:x[0],i:x[1],w:[0,0,0,0,0],p:0});b++}});
+toast(a||b?"Added "+a+" tasks and "+b+" habits":"Already in your plan");render()}
 function $(id){return document.getElementById(id)}
 function key(d){return S.y+"-"+S.m+"-"+d}
 function stats(){var d=S.tasks.filter(function(t){return t.d}).length,tot=S.tasks.length;return{d:d,tot:tot,p:tot?Math.round(d/tot*100):0}}
@@ -236,7 +254,7 @@ return '<div class="hab"><span class="tag" style="width:26px">'+esc(h.i)+'</span
 (S.adding?'<div class="add" style="margin-top:14px"><input id="nh" placeholder="New habit" maxlength="40" aria-label="New habit"><button id="addh">Add habit</button></div>':'<button class="card" id="ah" style="width:100%;margin-top:14px;color:var(--p2);font-weight:700">Add habit +</button>')}
 function back(t){return '<div class="top"><button class="ic" data-pg="" aria-label="Back">‹</button><h2>'+t+'</h2><span class="ic"></span></div>'}
 function stp(k,l,mx){return '<div class="row"><span class="t"><b>'+l+'</b></span><span class="stp"><button data-gs="'+k+':-1" aria-label="Decrease">−</button><b>'+S[k]+'</b><button data-gs="'+k+':1" aria-label="Increase">+</button></span></div>'}
-function more(){var p=S.pg;if(p=="goalz")return goalz();if(p=="remind")return remind();if(p=="ai")return aiPage();if(p=="backup")return backup();
+function more(){var p=S.pg;if(p=="goalz")return goalz();if(p=="presets")return presets();if(p=="remind")return remind();if(p=="ai")return aiPage();if(p=="backup")return backup();
 if(p=="profile")return back("Profile")+'<div class="card"><label style="color:var(--mu);font-size:13px">Name</label><div class="add" style="margin:8px 0 0"><input id="pn" value="'+esc(S.name)+'" maxlength="30"><button id="savep">Save</button></div></div>';
 if(p=="goals")return back("Productivity goals")+'<div class="card" style="padding:4px 16px">'+stp("goal","Tasks per day")+stp("hg","Days per week for each habit")+'</div><p class="note">Your daily goal shows on Home. Habit targets show on the Habits tab.</p>';
 if(p=="about")return back("About Momentum")+'<div class="card"><b style="font-size:17px">Momentum 1.0</b><p class="note" style="padding:8px 0 0">Plan. Focus. Achieve. Organise your tasks, track your habits and stay consistent.</p><p class="note" style="padding:8px 0 0">Everything you enter is saved in this browser on this device. Clearing site data removes it.</p></div>';
@@ -244,7 +262,7 @@ if(p=="feedback")return back("Send feedback")+'<div class="card"><textarea id="f
 var ini=S.name.split(" ").map(function(w){return w[0]||""}).join("").slice(0,2).toUpperCase();
 return '<div class="top"><h2>Settings</h2></div><div class="set"><button class="card me" data-pg="profile" style="width:100%;text-align:left"><div class="av">'+esc(ini)+'</div><div style="flex:1"><b style="font-size:17px">'+esc(S.name)+'</b><small style="display:block;color:var(--mu)">Keep going. 💪</small></div><span class="tag">›</span></button>'+
 '<div class="card"><button class="row" id="th"><span class="tag">☾</span><span class="t"><b>Appearance</b></span><small style="color:var(--p2)">'+(S.dark?'Dark mode':'Light mode')+'</small></button><button class="row" id="nf"><span class="tag">🔔</span><span class="t"><b>Notifications</b></span><span class="sw'+(S.notif?' on':'')+'"></span></button><button class="row" data-pg="goals"><span class="tag">◎</span><span class="t"><b>Productivity goals</b></span><span class="tag">›</span></button></div>'+
-'<div class="card"><button class="row" data-pg="remind"><span class="tag">⏰</span><span class="t"><b>Reminders</b></span><span class="tag">›</span></button><button class="row" data-pg="ai"><span class="tag">✦</span><span class="t"><b>AI assistant</b></span><span class="tag">›</span></button><button class="row" data-pg="goalz"><span class="tag">⚑</span><span class="t"><b>Goals &amp; milestones</b></span><span class="tag">›</span></button><button class="row" data-pg="backup"><span class="tag">⇩</span><span class="t"><b>Backup &amp; restore</b></span><span class="tag">›</span></button><button class="row" data-pg="about"><span class="tag">ⓘ</span><span class="t"><b>About Momentum</b></span><span class="tag">›</span></button><button class="row" data-pg="feedback"><span class="tag">✉</span><span class="t"><b>Send feedback</b></span><span class="tag">›</span></button></div>'+
+'<div class="card"><button class="row" data-pg="presets"><span class="tag">⚡</span><span class="t"><b>Routine presets</b></span><span class="tag">›</span></button><button class="row" id="hlp"><span class="tag">?</span><span class="t"><b>How to use Momentum</b></span><span class="tag">›</span></button><button class="row" data-pg="remind"><span class="tag">⏰</span><span class="t"><b>Reminders</b></span><span class="tag">›</span></button><button class="row" data-pg="ai"><span class="tag">✦</span><span class="t"><b>AI assistant</b></span><span class="tag">›</span></button><button class="row" data-pg="goalz"><span class="tag">⚑</span><span class="t"><b>Goals &amp; milestones</b></span><span class="tag">›</span></button><button class="row" data-pg="backup"><span class="tag">⇩</span><span class="t"><b>Backup &amp; restore</b></span><span class="tag">›</span></button><button class="row" data-pg="about"><span class="tag">ⓘ</span><span class="t"><b>About Momentum</b></span><span class="tag">›</span></button><button class="row" data-pg="feedback"><span class="tag">✉</span><span class="t"><b>Send feedback</b></span><span class="tag">›</span></button></div>'+
 '<button class="out" id="lo">Log out</button><button class="lnk" id="rs">Reset all data</button></div>'}
 function render(){var t=S.tab;$("view").innerHTML=({home:home,tasks:tasks,cal:cal,habits:habits,more:more,stats:insights})[t]();
 var n=t=="tasks"?"home":t;$("nav").innerHTML=TABS.map(function(x){return '<button class="'+(x[0]==n?'on':'')+'" data-go="'+x[0]+'"><i>'+x[1]+'</i>'+x[2]+'</button>'}).join("");save()}
@@ -256,6 +274,11 @@ if(id=="asi"||id=="asu"){doAuth(id=="asu");return}
 if(id=="afp"){forgot();return}
 if(id=="rpw"){doReset();return}
 if(d.te!==undefined){S.te=+d.te;render();return}
+if(d.pr!==undefined){addPreset(+d.pr);return}
+if(d.tn){S.ts=Math.max(0,Math.min(TS.length-1,S.ts+ +d.tn));tour();return}
+if(d.tskip!==undefined){endTour();return}
+if(id=="tpre"){endTour(1);return}
+if(id=="hlp"){showTour();return}
 if(d.cv){S.cv=d.cv;render();return}
 if(d.wk){var w=new Date(S.y,S.m,S.sel+7*d.wk);S.y=w.getFullYear();S.m=w.getMonth();S.sel=w.getDate();render();return}
 if(d.dt){var q3=d.dt.split(",");S.y=+q3[0];S.m=+q3[1];S.sel=+q3[2];render();return}
